@@ -2,18 +2,24 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>This or That - Click Version</title>
+  <title>This or That - iPhone Fit</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet" />
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Montserrat', sans-serif;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 20px 10px;
       margin: 0;
       background: #f0f0f0;
+      max-width: 100vw;
+      overflow-x: hidden;
     }
 
     h2 {
@@ -27,14 +33,13 @@
       flex-wrap: nowrap;
       justify-content: center;
       align-items: center;
-      gap: 12px;
-      max-width: 100%;
+      max-width: 100vw;
+      overflow: hidden;
     }
 
     .image-card {
-      flex: 0 0 auto;
-      width: 60vw;
-      max-width: 300px;
+      width: 47vw;
+      max-width: 280px;
       border-radius: 15px;
       overflow: hidden;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
@@ -44,7 +49,7 @@
     }
 
     .image-card:hover {
-      transform: scale(1.03);
+      transform: scale(1.02);
       box-shadow: 0 6px 12px rgba(0,0,0,0.25);
     }
 
@@ -60,10 +65,11 @@
       color: #888;
       margin: 0 5px;
       user-select: none;
+      white-space: nowrap;
     }
 
     .final-image {
-      width: 60vw;
+      width: 90vw;
       max-width: 300px;
       height: auto;
       border-radius: 15px;
@@ -105,23 +111,24 @@
     const images = Array.from({ length: 13 }, (_, i) => `image/${i + 1}.png`);
 
     let currentIndex, currentWinner, currentChallenger;
-    const leftCard = document.getElementById("leftCard");
-    const rightCard = document.getElementById("rightCard");
-    const restartBtn = document.getElementById("restartBtn");
     const container = document.getElementById("imageContainer");
+    const restartBtn = document.getElementById("restartBtn");
 
     function initGame() {
       currentIndex = 2;
       currentWinner = images[0];
       currentChallenger = images[1];
       document.querySelector("h2").textContent = "Which one do you like?";
+      renderCards();
+      restartBtn.style.display = "none";
+    }
+
+    function renderCards() {
       container.innerHTML = `
         <div class="image-card" id="leftCard"><img src="${currentWinner}" alt="Left" /></div>
         <div class="or-text">OR</div>
         <div class="image-card" id="rightCard"><img src="${currentChallenger}" alt="Right" /></div>
       `;
-      restartBtn.style.display = "none";
-
       document.getElementById("leftCard").addEventListener("click", () => nextRound(currentWinner));
       document.getElementById("rightCard").addEventListener("click", () => nextRound(currentChallenger));
     }
@@ -130,22 +137,14 @@
       currentWinner = winner;
       if (currentIndex >= images.length) {
         document.querySelector("h2").textContent = "Som's choice is:";
-        container.innerHTML = `<img src="${currentWinner}" class="final-image" alt="Winner" />`;
+        container.innerHTML = `
+          <img src="${currentWinner}" class="final-image" alt="Winner" />
+        `;
         restartBtn.style.display = "block";
         return;
       }
       currentChallenger = images[currentIndex++];
-      updateCards();
-    }
-
-    function updateCards() {
-      container.innerHTML = `
-        <div class="image-card" id="leftCard"><img src="${currentWinner}" alt="Left" /></div>
-        <div class="or-text">OR</div>
-        <div class="image-card" id="rightCard"><img src="${currentChallenger}" alt="Right" /></div>
-      `;
-      document.getElementById("leftCard").addEventListener("click", () => nextRound(currentWinner));
-      document.getElementById("rightCard").addEventListener("click", () => nextRound(currentChallenger));
+      renderCards();
     }
 
     restartBtn.addEventListener("click", initGame);
