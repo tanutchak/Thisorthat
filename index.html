@@ -86,9 +86,9 @@
     function nextRound(winner) {
       currentWinner = winner;
       if (currentIndex >= images.length) {
-        document.querySelector("h2").textContent = "ภาพที่คุณเลือกคือ:";
+        document.querySelector("h2").textContent = "You choose:";
         document.querySelector(".image-container").innerHTML = `
-          <img src="${currentWinner}" class="final-image" alt="Winner" />
+          <img src="${currentWinner}" class="final-image" alt="winner" />
         `;
         return;
       }
