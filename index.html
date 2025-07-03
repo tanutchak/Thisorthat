@@ -11,8 +11,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
+      padding: 20px;
       margin: 0;
       background: #f0f0f0;
     }
@@ -28,6 +29,7 @@
       gap: 20px;
       flex-wrap: wrap;
       justify-content: center;
+      margin-bottom: 20px;
     }
 
     .image-card {
@@ -40,8 +42,13 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
       background: #fff;
       touch-action: pan-y;
-      transition: transform 0.2s ease;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
       cursor: pointer;
+    }
+
+    .image-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 6px 12px rgba(0,0,0,0.25);
     }
 
     .image-card img {
@@ -57,6 +64,24 @@
       border-radius: 15px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
+
+    #restartBtn {
+      display: none;
+      margin-top: 20px;
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      background-color: #4a90e2;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #restartBtn:hover {
+      background-color: #357bd1;
+    }
   </style>
 </head>
 <body>
@@ -67,40 +92,61 @@
     <div class="image-card" id="rightCard"><img src="" alt="Right" /></div>
   </div>
 
+  <button id="restartBtn">🔁 เริ่มใหม่</button>
+
   <script>
-    // Load images from "image" folder: image/1.png to image/13.png
     const images = Array.from({ length: 13 }, (_, i) => `image/${i + 1}.png`);
 
-    let currentIndex = 2;
-    let currentWinner = images[0];
-    let currentChallenger = images[1];
-
+    let currentIndex, currentWinner, currentChallenger;
     const leftCard = document.getElementById("leftCard");
     const rightCard = document.getElementById("rightCard");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function initGame() {
+      currentIndex = 2;
+      currentWinner = images[0];
+      currentChallenger = images[1];
+      document.querySelector("h2").textContent = "Which one do you like?";
+      document.querySelector(".image-container").innerHTML = `
+        <div class="image-card" id="leftCard"><img src="" alt="Left" /></div>
+        <div class="image-card" id="rightCard"><img src="" alt="Right" /></div>
+      `;
+      restartBtn.style.display = "none";
+
+      bindCards();
+      renderImages();
+    }
 
     function renderImages() {
-      leftCard.querySelector("img").src = currentWinner;
-      rightCard.querySelector("img").src = currentChallenger;
+      document.getElementById("leftCard").querySelector("img").src = currentWinner;
+      document.getElementById("rightCard").querySelector("img").src = currentChallenger;
     }
 
     function nextRound(winner) {
       currentWinner = winner;
       if (currentIndex >= images.length) {
-        document.querySelector("h2").textContent = "You choose:";
+        document.querySelector("h2").textContent = "ภาพที่คุณเลือกคือ:";
         document.querySelector(".image-container").innerHTML = `
-          <img src="${currentWinner}" class="final-image" alt="winner" />
+          <img src="${currentWinner}" class="final-image" alt="Winner" />
         `;
+        restartBtn.style.display = "block";
         return;
       }
       currentChallenger = images[currentIndex++];
       renderImages();
     }
 
-    // Click fallback
-    leftCard.addEventListener("click", () => nextRound(currentWinner));
-    rightCard.addEventListener("click", () => nextRound(currentChallenger));
+    function bindCards() {
+      const left = document.getElementById("leftCard");
+      const right = document.getElementById("rightCard");
 
-    // Swipe handler
+      left.addEventListener("click", () => nextRound(currentWinner));
+      right.addEventListener("click", () => nextRound(currentChallenger));
+
+      addSwipeListener(left, true);
+      addSwipeListener(right, false);
+    }
+
     function addSwipeListener(card, isLeftCard) {
       let startX = 0;
       let moved = false;
@@ -129,10 +175,9 @@
       });
     }
 
-    addSwipeListener(leftCard, true);
-    addSwipeListener(rightCard, false);
+    restartBtn.addEventListener("click", initGame);
 
-    renderImages();
+    initGame();
   </script>
 </body>
 </html>
