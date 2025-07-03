@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>This or That Swipe</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Montserrat', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+      background: #f0f0f0;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .image-container {
+      display: flex;
+      gap: 20px;
+    }
+
+    .image-card {
+      width: 45vw;
+      max-width: 220px;
+      height: 60vw;
+      max-height: 330px;
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+      background: #fff;
+      touch-action: pan-y;
+      transition: transform 0.2s ease;
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .final-image {
+      width: 60vw;
+      max-width: 300px;
+      height: auto;
+      border-radius: 15px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Which one do you like?</h2>
+  <div class="image-container">
+    <div class="image-card" id="leftCard"><img src="" alt="Left"></div>
+    <div class="image-card" id="rightCard"><img src="" alt="Right"></div>
+  </div>
+
+  <script>
+    // ใช้ชื่อไฟล์แบบ 1.png ถึง 13.png
+    const images = Array.from({ length: 13 }, (_, i) => `${i + 1}.png`);
+
+    let currentIndex = 2;
+    let currentWinner = images[0];
+    let currentChallenger = images[1];
+
+    const leftCard = document.getElementById("leftCard");
+    const rightCard = document.getElementById("rightCard");
+
+    function renderImages() {
+      leftCard.querySelector("img").src = currentWinner;
+      rightCard.querySelector("img").src = currentChallenger;
+    }
+
+    function nextRound(winner) {
+      currentWinner = winner;
+      if (currentIndex >= images.length) {
+        document.querySelector("h2").textContent = "ภาพที่คุณเลือกคือ:";
+        document.querySelector(".image-container").innerHTML = `
+          <img src="${currentWinner}" class="final-image" alt="Winner">
+        `;
+        return;
+      }
+      currentChallenger = images[currentIndex++];
+      renderImages();
+    }
+
+    // คลิก
+    leftCard.addEventListener("click", () => nextRound(currentWinner));
+    rightCard.addEventListener("click", () => nextRound(currentChallenger));
+
+    // Swipe
+    function addSwipeListener(card, isLeftCard) {
+      let startX = 0;
+      let moved = false;
+
+      card.addEventListener("touchstart", (e) => {
+        startX = e.touches[0].clientX;
+        moved = false;
+      });
+
+      card.addEventListener("touchmove", (e) => {
+        const deltaX = e.touches[0].clientX - startX;
+        card.style.transform = `translateX(${deltaX}px)`;
+        moved = true;
+      });
+
+      card.addEventListener("touchend", (e) => {
+        const deltaX = e.changedTouches[0].clientX - startX;
+        card.style.transform = "translateX(0px)";
+        if (moved && Math.abs(deltaX) > 50) {
+          if (isLeftCard && deltaX < 0) {
+            nextRound(currentWinner);
+          } else if (!isLeftCard && deltaX > 0) {
+            nextRound(currentChallenger);
+          }
+        }
+      });
+    }
+
+    addSwipeListener(leftCard, true);
+    addSwipeListener(rightCard, false);
+
+    renderImages();
+  </script>
+</body>
+</html>
